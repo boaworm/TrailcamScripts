@@ -164,6 +164,52 @@ def refresh_BQ_deer_observations():
     )
 )
 
+def refresh_BQ_timeseries():
+    f = open("Web/time_series_dimension.json")
+    records = json.load(f)
+
+    """
+       [
+       {
+           "date": "2023-12-01"
+       },
+       {
+           "date": "2023-12-02"
+       },
+    """
+
+    client = bigquery.Client.from_service_account_json(service_account_key)
+    job_config = bigquery.LoadJobConfig(
+        schema=[
+            bigquery.SchemaField("date", bigquery.enums.SqlTypeNames.DATE),
+            ],
+        write_disposition="WRITE_TRUNCATE"
+    )
+
+    dataframe = pandas.DataFrame(
+        records,
+        columns=[
+            "date",
+        ]
+    )
+
+    table_id = config["time_series_table_id"]
+
+    dataframe["date"] = pandas.to_datetime(dataframe["date"])
+
+    job = client.load_table_from_dataframe(
+        dataframe, table_id, job_config=job_config
+    )
+
+    table = client.get_table(table_id)
+    print(
+    "Loaded {} rows and {} columns to {}".format(
+        table.num_rows, len(table.schema), table_id
+    )
+)
+
+
 
 refresh_BQ_oklahoma_observations()
 refresh_BQ_deer_observations()
+refresh_BQ_timeseries()
