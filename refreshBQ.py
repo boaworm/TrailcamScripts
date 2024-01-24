@@ -112,6 +112,59 @@ def refresh_BQ_oklahoma_observations():
     )
 )
 
+def refresh_BQ_manual_classification():
+    f = open("Web/manually_classified.json")
+    records = json.load(f)
+
+    """
+    records =
+    [
+        {
+            "image": "TOP_2023-12-07T181500_PICT3856_202312080200AZTAN.JPG",
+            "confidence": 0.9999928753738866,
+            "classification": "1.Deer"
+        },
+        {
+            "image": "TOP_2023-12-07T192500_PICT3861_202312080200JHETQ.JPG",
+            "classification": "0.NoDeer",
+            "confidence": 0.9691270361652979
+        },
+    ]
+    """
+
+    client = bigquery.Client.from_service_account_json(service_account_key)
+    job_config = bigquery.LoadJobConfig(
+        schema=[
+            bigquery.SchemaField("image", bigquery.enums.SqlTypeNames.STRING),
+            bigquery.SchemaField("confidence",bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("classification", bigquery.enums.SqlTypeNames.STRING),
+            ],
+        write_disposition="WRITE_TRUNCATE"
+    )
+
+    dataframe = pandas.DataFrame(
+        records,
+        columns=[
+            "image",
+            "confidence",
+            "classification",
+            ]
+    )
+
+    table_id = config["manually_classified_table_id"]
+
+    job = client.load_table_from_dataframe(
+        dataframe, table_id, job_config=job_config
+    )
+
+    table = client.get_table(table_id)
+    print(
+    "Loaded {} rows and {} columns to {}".format(
+        table.num_rows, len(table.schema), table_id
+    )
+)
+
+
 def refresh_BQ_deer_observations():
     f = open("Web/deer_observations.json")
     records = json.load(f)
@@ -213,3 +266,4 @@ def refresh_BQ_timeseries():
 refresh_BQ_oklahoma_observations()
 refresh_BQ_deer_observations()
 refresh_BQ_timeseries()
+refresh_BQ_manual_classification()

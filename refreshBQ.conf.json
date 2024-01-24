@@ -2,5 +2,6 @@
 	google_cloud_service_account_key : "some-service-account-key.json",
 	animal_obs_table_id: "your-project-1234.oklahoma_trailcam.oklahoma_trailcam_observations",
 	deer_obs_table_id: "your-project-1234.oklahoma_trailcam.oklahoma_trailcam_deer",
-	time_series_table_id : "your-project-1234.oklahoma_trailcam.oklahoma_trailcam_timeseries"
+	time_series_table_id : "your-project-1234.oklahoma_trailcam.oklahoma_trailcam_timeseries",
+	manually_classified_table_id : "your-project-1234.oklahoma_trailcam.oklahoma_trailcam_manually_classified"
 }
